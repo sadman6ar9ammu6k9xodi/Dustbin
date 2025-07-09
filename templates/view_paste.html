@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if paste.title %}{{ paste.title }} - Dustbin{% else %}Paste {{ paste.id }} - Dustbin{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h2>
+                    {% if paste.title %}
+                        {{ paste.title }}
+                    {% else %}
+                        Untitled Paste
+                    {% endif %}
+                </h2>
+                <p class="text-muted">
+                    <small>
+                        ID: {{ paste.id }} | 
+                        Language: {{ paste.language|title }} | 
+                        Created: {{ paste.created_at.strftime('%Y-%m-%d %H:%M UTC') }} |
+                        Views: {{ paste.views }}
+                        {% if paste.author %}
+                            | By: {{ paste.author.username }}
+                        {% endif %}
+                        {% if paste.expires_at %}
+                            | Expires: {{ paste.expires_at.strftime('%Y-%m-%d %H:%M UTC') }}
+                        {% endif %}
+                    </small>
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('raw_paste', paste_id=paste.id) }}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    Raw
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="copyToClipboard()">
+                    Copy
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="downloadPaste()">
+                    Download
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0 position-relative">
+                <div class="language-badge">{{ paste.language|title }}</div>
+                <div id="paste-content">
+                    {{ paste.get_highlighted_content() | safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Paste Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>ID:</strong> {{ paste.id }}</p>
+                <p><strong>Language:</strong> {{ paste.language|title }}</p>
+                <p><strong>Size:</strong> {{ paste.content|length }} characters</p>
+                <p><strong>Lines:</strong> {{ paste.content.split('\n')|length }}</p>
+                <p><strong>Created:</strong> {{ paste.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% if paste.expires_at %}
+                <p><strong>Expires:</strong> {{ paste.expires_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                {% else %}
+                <p><strong>Expires:</strong> Never</p>
+                {% endif %}
+                <p><strong>Views:</strong> {{ paste.views }}</p>
+                <p><strong>Visibility:</strong> {{ 'Public' if paste.is_public else 'Private' }}</p>
+                {% if paste.author %}
+                <p><strong>Author:</strong> {{ paste.author.username }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if current_user.is_authenticated and current_user.id == paste.user_id %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('fork_paste', paste_id=paste.id) }}" class="btn btn-primary btn-sm d-block mb-2">
+                    Fork This Paste
+                </a>
+                <form method="POST" action="{{ url_for('delete_paste', paste_id=paste.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm d-block" onclick="return confirm('Are you sure you want to delete this paste? This action cannot be undone.')">
+                        Delete Paste
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Share</h5>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control form-control-sm" id="paste-url" value="{{ request.url }}" readonly>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="copyUrl()">Copy</button>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" id="raw-url" value="{{ url_for('raw_paste', paste_id=paste.id, _external=True) }}" readonly>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="copyRawUrl()">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden textarea for copying content -->
+<textarea id="hidden-content" style="position: absolute; left: -9999px;">{{ paste.content }}</textarea>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard() {
+    const content = document.getElementById('hidden-content');
+    content.select();
+    content.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    
+    // Show feedback
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('btn-success');
+    btn.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        btn.textContent = originalText;
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+
+function copyUrl() {
+    const urlInput = document.getElementById('paste-url');
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = originalText, 1000);
+}
+
+function copyRawUrl() {
+    const urlInput = document.getElementById('raw-url');
+    urlInput.select();
+    urlInput.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = originalText, 1000);
+}
+
+function downloadPaste() {
+    const content = document.getElementById('hidden-content').value;
+    const filename = '{{ paste.title or "paste_" + paste.id }}.{{ "txt" if paste.language == "text" else paste.language }}';
+    
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+
+</script>
+{% endblock %}

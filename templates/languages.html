@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Supported Languages - Dustbin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <h2>Supported Programming Languages</h2>
+        <p class="lead">Dustbin supports syntax highlighting for 99+ programming languages and file formats.</p>
+        
+        {% set categories = {} %}
+        {% for lang in config.languages %}
+            {% set category = lang.category %}
+            {% if category not in categories %}
+                {% set _ = categories.update({category: []}) %}
+            {% endif %}
+            {% set _ = categories[category].append(lang) %}
+        {% endfor %}
+
+        {% for category_id, languages in categories.items() %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    {{ config.categories.get(category_id, category_id|title) }}
+                    <span class="badge bg-secondary">{{ languages|length }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for lang in languages|sort(attribute='name') %}
+                    <div class="col-md-6 col-lg-4 mb-2">
+                        <div class="d-flex align-items-center">
+                            <code class="me-2">{{ lang.id }}</code>
+                            <span>{{ lang.name }}</span>
+                        </div>
+                        {% if lang.extensions %}
+                        <small class="text-muted ms-4">{{ lang.extensions|join(', ') }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Total Languages:</strong> {{ config.languages|length }}</p>
+                <p><strong>Categories:</strong> {{ config.categories|length }}</p>
+                <p><strong>Most Popular:</strong></p>
+                <ul class="list-unstyled ms-3">
+                    <li>• Python</li>
+                    <li>• JavaScript</li>
+                    <li>• HTML/CSS</li>
+                    <li>• Java</li>
+                    <li>• C/C++</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Features</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li>✅ Syntax highlighting</li>
+                    <li>✅ Line numbers</li>
+                    <li>✅ Auto-detection</li>
+                    <li>✅ Multiple themes</li>
+                    <li>✅ Copy to clipboard</li>
+                    <li>✅ Download as file</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Auto-Detection</h5>
+            </div>
+            <div class="card-body">
+                <p class="small">Dustbin can automatically detect the programming language based on:</p>
+                <ul class="small">
+                    <li>File extensions</li>
+                    <li>Shebang lines</li>
+                    <li>Common patterns</li>
+                    <li>Keywords and syntax</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

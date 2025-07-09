@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}New Paste - Dustbin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <h2>Create New Paste</h2>
+        
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control") }}
+                {% if form.title.errors %}
+                    <div class="text-danger">
+                        {% for error in form.title.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.language.label(class="form-label") }}
+                    {{ form.language(class="form-select", id="language-select") }}
+                    <small class="form-text text-muted">Choose the programming language for syntax highlighting</small>
+                </div>
+                <div class="col-md-6">
+                    {{ form.expires_in.label(class="form-label") }}
+                    {{ form.expires_in(class="form-select") }}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                {{ form.content.label(class="form-label") }}
+                {{ form.content(class="form-control", placeholder="Paste your code or text here...") }}
+                {% if form.content.errors %}
+                    <div class="text-danger">
+                        {% for error in form.content.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3 form-check">
+                {{ form.is_public(class="form-check-input") }}
+                {{ form.is_public.label(class="form-check-label") }}
+                <small class="form-text text-muted d-block">
+                    Public pastes are visible to everyone and appear in the recent pastes list.
+                </small>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Create Paste</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Language:</strong> Select the appropriate language for syntax highlighting</li>
+                    <li><strong>Expiration:</strong> Choose when your paste should be automatically deleted</li>
+                    <li><strong>Privacy:</strong> Private pastes are only visible to you (requires login)</li>
+                    <li><strong>Title:</strong> Optional but helps organize your pastes</li>
+                </ul>
+            </div>
+        </div>
+
+        {% if not current_user.is_authenticated %}
+        <div class="card mt-3" id="rate-limit-card">
+            <div class="card-header">
+                <h5>Rate Limit</h5>
+            </div>
+            <div class="card-body">
+                <div id="rate-limit-status">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Checking rate limit...
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Keyboard Shortcuts</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><kbd>Ctrl</kbd> + <kbd>Enter</kbd> - Submit form</li>
+                    <li><kbd>Tab</kbd> - Insert tab character</li>
+                    <li><kbd>Ctrl</kbd> + <kbd>A</kbd> - Select all text</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        document.querySelector('form').submit();
+    }
+});
+
+// Auto-resize textarea
+const textarea = document.querySelector('textarea');
+if (textarea) {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
+}
+
+// Language detection based on content
+function detectLanguage(content) {
+    const patterns = {
+        'python': [/^#!/usr/bin/env python/, /^#!/usr/bin/python/, /import \w+/, /def \w+\(/, /class \w+:/],
+        'javascript': [/function\s+\w+/, /const\s+\w+\s*=/, /let\s+\w+\s*=/, /var\s+\w+\s*=/, /console\.log/],
+        'html': [/<html/, /<head/, /<body/, /<div/, /<script/, /<style/],
+        'css': [/\w+\s*{/, /\.\w+\s*{/, /#\w+\s*{/, /@media/, /color\s*:/],
+        'json': [/^\s*{/, /^\s*\[/, /"[\w-]+"\s*:/],
+        'xml': [/<\?xml/, /<\w+/, /xmlns/],
+        'sql': [/SELECT\s+/, /INSERT\s+/, /UPDATE\s+/, /DELETE\s+/, /CREATE\s+/],
+        'bash': [/^#!/bin/bash/, /^#!/bin/sh/, /echo\s+/, /if\s*\[/, /for\s+\w+\s+in/],
+        'go': [/package\s+\w+/, /import\s*\(/, /func\s+\w+/, /var\s+\w+/, /fmt\.Print/],
+        'rust': [/fn\s+\w+/, /let\s+\w+/, /use\s+\w+/, /struct\s+\w+/, /impl\s+\w+/],
+        'java': [/public\s+class/, /import\s+java/, /public\s+static\s+void\s+main/, /System\.out/],
+        'cpp': [/#include\s*</, /using\s+namespace/, /std::/, /cout\s*<</, /int\s+main/],
+        'c': [/#include\s*</, /int\s+main/, /printf\s*\(/, /malloc\s*\(/],
+        'csharp': [/using\s+System/, /namespace\s+\w+/, /public\s+class/, /Console\.Write/],
+        'php': [/<\?php/, /\$\w+/, /echo\s+/, /function\s+\w+/]
+    };
+
+    for (const [lang, regexes] of Object.entries(patterns)) {
+        for (const regex of regexes) {
+            if (regex.test(content)) {
+                return lang;
+            }
+        }
+    }
+    return null;
+}
+
+// Auto-detect language when content changes
+if (textarea) {
+    textarea.addEventListener('input', function() {
+        const content = this.value;
+        if (content.length > 50) { // Only detect after some content
+            const detected = detectLanguage(content);
+            if (detected) {
+                const languageSelect = document.getElementById('language-select');
+                const option = languageSelect.querySelector(`option[value="${detected}"]`);
+                if (option && languageSelect.value === 'text') {
+                    languageSelect.value = detected;
+                }
+            }
+        }
+    });
+}
+
+// Check rate limit status for anonymous users
+{% if not current_user.is_authenticated %}
+fetch('/api/rate-limit')
+    .then(response => response.json())
+    .then(data => {
+        const statusDiv = document.getElementById('rate-limit-status');
+        if (data.can_post) {
+            statusDiv.innerHTML = `
+                <div class="text-success">
+                    <i class="fas fa-check-circle"></i> ${data.message}
+                </div>
+            `;
+        } else {
+            statusDiv.innerHTML = `
+                <div class="text-danger">
+                    <i class="fas fa-exclamation-triangle"></i> ${data.message}
+                </div>
+            `;
+            // Disable the submit button
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Rate Limited';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error checking rate limit:', error);
+        document.getElementById('rate-limit-status').innerHTML =
+            '<div class="text-muted">Unable to check rate limit</div>';
+    });
+{% endif %}
+</script>
+{% endblock %}
