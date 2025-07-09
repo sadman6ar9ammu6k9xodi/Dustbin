@@ -32,14 +32,19 @@
                 </p>
             </div>
             <div class="btn-group" role="group">
+                {% if paste.is_previewable() %}
+                <a href="{{ url_for('preview_paste', paste_id=paste.id) }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> Preview
+                </a>
+                {% endif %}
                 <a href="{{ url_for('raw_paste', paste_id=paste.id) }}" class="btn btn-outline-secondary btn-sm" target="_blank">
-                    Raw
+                    <i class="fas fa-file-alt"></i> Raw
                 </a>
                 <button class="btn btn-outline-secondary btn-sm" onclick="copyToClipboard()">
-                    Copy
+                    <i class="fas fa-copy"></i> Copy
                 </button>
                 <button class="btn btn-outline-secondary btn-sm" onclick="downloadPaste()">
-                    Download
+                    <i class="fas fa-download"></i> Download
                 </button>
             </div>
         </div>

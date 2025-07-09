@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
@@ -15,6 +15,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 import secrets
 import string
+import markdown
+import bleach
 
 # Load environment variables
 load_dotenv()
@@ -91,6 +93,52 @@ class Paste(db.Model):
             formatter = HtmlFormatter(style='default', cssclass='highlight', linenos=True)
             lexer = get_lexer_by_name('text')
             return highlight(self.content, lexer, formatter)
+
+    def get_markdown_preview(self):
+        """Return rendered Markdown content"""
+        if self.language.lower() in ['markdown', 'md']:
+            # Configure markdown with safe extensions
+            md = markdown.Markdown(extensions=[
+                'codehilite',
+                'fenced_code',
+                'tables',
+                'toc',
+                'nl2br'
+            ])
+            html = md.convert(self.content)
+            # Sanitize HTML to prevent XSS
+            allowed_tags = [
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                'p', 'br', 'strong', 'em', 'u', 's', 'del',
+                'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
+                'table', 'thead', 'tbody', 'tr', 'th', 'td',
+                'a', 'img', 'hr', 'div', 'span'
+            ]
+            allowed_attributes = {
+                'a': ['href', 'title'],
+                'img': ['src', 'alt', 'title', 'width', 'height'],
+                'code': ['class'],
+                'div': ['class'],
+                'span': ['class'],
+                'pre': ['class']
+            }
+            return bleach.clean(html, tags=allowed_tags, attributes=allowed_attributes)
+        return None
+
+    def is_previewable(self):
+        """Check if paste can be previewed"""
+        return self.language.lower() in ['markdown', 'md', 'html', 'svg']
+
+    def get_preview_type(self):
+        """Get the type of preview available"""
+        lang = self.language.lower()
+        if lang in ['markdown', 'md']:
+            return 'markdown'
+        elif lang == 'html':
+            return 'html'
+        elif lang == 'svg':
+            return 'svg'
+        return None
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -300,6 +348,81 @@ def raw_paste(paste_id):
             abort(404)
 
     return paste.content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+@app.route('/paste/<paste_id>/preview')
+def preview_paste(paste_id):
+    """Preview paste content (Markdown, HTML, SVG)"""
+    paste = Paste.query.get_or_404(paste_id)
+
+    if paste.is_expired():
+        abort(404)
+
+    if not paste.is_public:
+        if not current_user.is_authenticated or current_user.id != paste.user_id:
+            abort(404)
+
+    if not paste.is_previewable():
+        abort(404)
+
+    preview_type = paste.get_preview_type()
+
+    if preview_type == 'markdown':
+        markdown_html = paste.get_markdown_preview()
+        return render_template('preview_markdown.html', paste=paste, markdown_html=markdown_html)
+
+    elif preview_type == 'html':
+        # For HTML, render in a sandboxed iframe
+        return render_template('preview_html.html', paste=paste)
+
+    elif preview_type == 'svg':
+        # For SVG, render directly
+        return render_template('preview_svg.html', paste=paste)
+
+    abort(404)
+
+@app.route('/paste/<paste_id>/preview/render')
+def render_preview(paste_id):
+    """Render HTML/SVG content in iframe"""
+    paste = Paste.query.get_or_404(paste_id)
+
+    if paste.is_expired():
+        abort(404)
+
+    if not paste.is_public:
+        if not current_user.is_authenticated or current_user.id != paste.user_id:
+            abort(404)
+
+    preview_type = paste.get_preview_type()
+
+    if preview_type == 'html':
+        # Sanitize HTML content
+        allowed_tags = [
+            'html', 'head', 'body', 'title', 'meta', 'link', 'style',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr',
+            'strong', 'em', 'u', 's', 'del', 'ins', 'sub', 'sup',
+            'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'blockquote', 'pre', 'code',
+            'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption',
+            'div', 'span', 'section', 'article', 'header', 'footer', 'nav', 'aside',
+            'a', 'img', 'figure', 'figcaption', 'details', 'summary'
+        ]
+        allowed_attributes = {
+            '*': ['class', 'id', 'style'],
+            'a': ['href', 'title', 'target'],
+            'img': ['src', 'alt', 'title', 'width', 'height'],
+            'meta': ['charset', 'name', 'content'],
+            'link': ['rel', 'href', 'type'],
+        }
+        clean_html = bleach.clean(paste.content, tags=allowed_tags, attributes=allowed_attributes)
+        return Response(clean_html, mimetype='text/html')
+
+    elif preview_type == 'svg':
+        # For SVG, ensure it's valid SVG content
+        content = paste.content.strip()
+        if not content.startswith('<svg'):
+            content = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">{content}</svg>'
+        return Response(content, mimetype='image/svg+xml')
+
+    abort(404)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

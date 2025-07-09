@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}
+SVG Preview - {% if paste.title %}{{ paste.title }}{% else %}Paste {{ paste.id }}{% endif %} - Dustbin
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h2>
+                    <i class="fas fa-vector-square me-2"></i>
+                    {% if paste.title %}
+                        {{ paste.title }}
+                    {% else %}
+                        SVG Preview
+                    {% endif %}
+                </h2>
+                <p class="text-muted">
+                    <small>
+                        <a href="{{ url_for('view_paste', paste_id=paste.id) }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left"></i> Back to Code View
+                        </a>
+                        | ID: {{ paste.id }} | 
+                        Created: {{ paste.created_at.strftime('%Y-%m-%d %H:%M UTC') }} |
+                        Views: {{ paste.views }}
+                        {% if paste.author %}
+                            | By: {{ paste.author.username }}
+                        {% endif %}
+                    </small>
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('view_paste', paste_id=paste.id) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-code"></i> Code View
+                </a>
+                <a href="{{ url_for('raw_paste', paste_id=paste.id) }}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="fas fa-file-alt"></i> Raw
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="downloadSVG()">
+                    <i class="fas fa-download"></i> Download SVG
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview/Code Toggle -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="previewTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview" type="button" role="tab">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="source-tab" data-bs-toggle="tab" data-bs-target="#source" type="button" role="tab">
+                            <i class="fas fa-code"></i> SVG Source
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="previewTabContent">
+                    <!-- SVG Preview -->
+                    <div class="tab-pane fade show active" id="preview" role="tabpanel">
+                        <div class="svg-preview-container text-center">
+                            <div class="preview-toolbar bg-light p-2 border-bottom mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-vector-square"></i> 
+                                    SVG Preview - Scalable Vector Graphics
+                                </small>
+                                <div class="float-end">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleBackground()">
+                                        <i class="fas fa-adjust"></i> Toggle Background
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()">
+                                        <i class="fas fa-search-minus"></i> Reset Zoom
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="svg-container" class="svg-container p-4" style="min-height: 400px; border: 1px dashed #ddd; background: white;">
+                                <iframe 
+                                    id="svg-preview-frame"
+                                    src="{{ url_for('render_preview', paste_id=paste.id) }}"
+                                    style="width: 100%; height: 400px; border: none; max-width: 100%;"
+                                    sandbox="allow-same-origin">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SVG Source -->
+                    <div class="tab-pane fade" id="source" role="tabpanel">
+                        <div class="position-relative">
+                            <div class="language-badge">SVG</div>
+                            <div id="paste-content">
+                                {{ paste.get_highlighted_content() | safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> SVG Preview</h6>
+                    <p class="mb-0">This is a live preview of the SVG content. SVG (Scalable Vector Graphics) images are vector-based and scale perfectly at any size.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>SVG Features</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled small">
+                            <li>✅ Vector graphics</li>
+                            <li>✅ Scalable without quality loss</li>
+                            <li>✅ CSS styling</li>
+                            <li>✅ Animations (CSS)</li>
+                            <li>✅ Interactive elements</li>
+                            <li>✅ Text and shapes</li>
+                            <li>✅ Gradients and filters</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let backgroundToggle = false;
+
+function toggleBackground() {
+    const container = document.getElementById('svg-container');
+    if (backgroundToggle) {
+        container.style.background = 'white';
+        backgroundToggle = false;
+    } else {
+        container.style.background = '#f8f9fa';
+        backgroundToggle = true;
+    }
+}
+
+function resetZoom() {
+    const iframe = document.getElementById('svg-preview-frame');
+    iframe.style.width = '100%';
+    iframe.style.height = '400px';
+}
+
+function downloadSVG() {
+    const content = `{{ paste.content | replace('\n', '\\n') | replace('\r', '') | replace('"', '\\"') }}`;
+    const filename = '{{ paste.title or "svg_" + paste.id }}.svg';
+    
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+// Auto-resize iframe based on SVG content
+document.getElementById('svg-preview-frame').onload = function() {
+    try {
+        const iframe = this;
+        // Try to get the SVG dimensions and adjust iframe accordingly
+        setTimeout(() => {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const svg = iframeDoc.querySelector('svg');
+            if (svg) {
+                const viewBox = svg.getAttribute('viewBox');
+                const width = svg.getAttribute('width');
+                const height = svg.getAttribute('height');
+                
+                if (viewBox) {
+                    const [x, y, w, h] = viewBox.split(' ').map(Number);
+                    const aspectRatio = w / h;
+                    const containerWidth = iframe.parentElement.clientWidth - 40; // Account for padding
+                    const newHeight = Math.min(containerWidth / aspectRatio, 600);
+                    iframe.style.height = newHeight + 'px';
+                } else if (width && height) {
+                    const w = parseFloat(width);
+                    const h = parseFloat(height);
+                    const aspectRatio = w / h;
+                    const containerWidth = iframe.parentElement.clientWidth - 40;
+                    const newHeight = Math.min(containerWidth / aspectRatio, 600);
+                    iframe.style.height = newHeight + 'px';
+                }
+            }
+        }, 100);
+    } catch (e) {
+        console.log('Cannot resize iframe:', e);
+    }
+};
+</script>
+{% endblock %}

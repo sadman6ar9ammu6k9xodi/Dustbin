@@ -4,3 +4,5 @@ flask-login==0.6.3
 flask-wtf==1.2.2
 pygments==2.19.2
 python-dotenv==1.1.1
+markdown==3.7
+bleach==6.2.0

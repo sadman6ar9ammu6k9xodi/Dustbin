@@ -12,7 +12,8 @@
       "name": "HTML",
       "pygments_lexer": "html",
       "extensions": [".html", ".htm"],
-      "category": "web"
+      "category": "web",
+      "preview": true
     },
     {
       "id": "css",
@@ -134,6 +135,14 @@
       "category": "data"
     },
     {
+      "id": "svg",
+      "name": "SVG",
+      "pygments_lexer": "xml",
+      "extensions": [".svg"],
+      "category": "web",
+      "preview": true
+    },
+    {
       "id": "yaml",
       "name": "YAML",
       "pygments_lexer": "yaml",
@@ -173,7 +182,16 @@
       "name": "Markdown",
       "pygments_lexer": "markdown",
       "extensions": [".md", ".markdown"],
-      "category": "text"
+      "category": "text",
+      "preview": true
+    },
+    {
+      "id": "md",
+      "name": "Markdown (short)",
+      "pygments_lexer": "markdown",
+      "extensions": [".md"],
+      "category": "text",
+      "preview": true
     },
     {
       "id": "lua",

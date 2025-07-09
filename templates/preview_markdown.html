@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}
+Markdown Preview - {% if paste.title %}{{ paste.title }}{% else %}Paste {{ paste.id }}{% endif %} - Dustbin
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h2>
+                    <i class="fab fa-markdown me-2"></i>
+                    {% if paste.title %}
+                        {{ paste.title }}
+                    {% else %}
+                        Markdown Preview
+                    {% endif %}
+                </h2>
+                <p class="text-muted">
+                    <small>
+                        <a href="{{ url_for('view_paste', paste_id=paste.id) }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left"></i> Back to Code View
+                        </a>
+                        | ID: {{ paste.id }} | 
+                        Created: {{ paste.created_at.strftime('%Y-%m-%d %H:%M UTC') }} |
+                        Views: {{ paste.views }}
+                        {% if paste.author %}
+                            | By: {{ paste.author.username }}
+                        {% endif %}
+                    </small>
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('view_paste', paste_id=paste.id) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-code"></i> Code View
+                </a>
+                <a href="{{ url_for('raw_paste', paste_id=paste.id) }}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="fas fa-file-alt"></i> Raw
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="copyToClipboard()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview/Code Toggle -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="previewTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="preview-tab" data-bs-toggle="tab" data-bs-target="#preview" type="button" role="tab">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="source-tab" data-bs-toggle="tab" data-bs-target="#source" type="button" role="tab">
+                            <i class="fas fa-code"></i> Markdown Source
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-0">
+                <div class="tab-content" id="previewTabContent">
+                    <!-- Markdown Preview -->
+                    <div class="tab-pane fade show active" id="preview" role="tabpanel">
+                        <div class="markdown-preview p-4">
+                            {{ markdown_html | safe }}
+                        </div>
+                    </div>
+                    
+                    <!-- Markdown Source -->
+                    <div class="tab-pane fade" id="source" role="tabpanel">
+                        <div class="position-relative">
+                            <div class="language-badge">Markdown</div>
+                            <div id="paste-content">
+                                {{ paste.get_highlighted_content() | safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> Markdown Preview</h6>
+                    <p class="mb-0">This is a rendered preview of the Markdown content. Switch to the "Markdown Source" tab to see the raw markdown code with syntax highlighting.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Markdown Features</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled small">
+                            <li>✅ Headers (H1-H6)</li>
+                            <li>✅ **Bold** and *Italic*</li>
+                            <li>✅ Lists and Tables</li>
+                            <li>✅ Code blocks</li>
+                            <li>✅ Links and Images</li>
+                            <li>✅ Blockquotes</li>
+                            <li>✅ Line breaks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden textarea for copying content -->
+<textarea id="hidden-content" style="position: absolute; left: -9999px;">{{ paste.content }}</textarea>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyToClipboard() {
+    const content = document.getElementById('hidden-content');
+    content.select();
+    content.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    
+    // Show feedback
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    btn.classList.add('btn-success');
+    btn.classList.remove('btn-outline-secondary');
+    
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
+{% endblock %}
