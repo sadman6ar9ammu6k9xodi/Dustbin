@@ -1,0 +1,47 @@
+{
+  "themes": [
+    {
+      "id": "default",
+      "name": "Default",
+      "pygments_style": "default",
+      "description": "Clean default theme with good contrast"
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "pygments_style": "github",
+      "description": "GitHub-style syntax highlighting"
+    },
+    {
+      "id": "monokai",
+      "name": "Monokai",
+      "pygments_style": "monokai",
+      "description": "Dark theme with vibrant colors"
+    },
+    {
+      "id": "solarized-light",
+      "name": "Solarized Light",
+      "pygments_style": "solarized-light",
+      "description": "Light solarized theme"
+    },
+    {
+      "id": "solarized-dark",
+      "name": "Solarized Dark",
+      "pygments_style": "solarized-dark",
+      "description": "Dark solarized theme"
+    },
+    {
+      "id": "vs",
+      "name": "Visual Studio",
+      "pygments_style": "vs",
+      "description": "Visual Studio style"
+    },
+    {
+      "id": "xcode",
+      "name": "Xcode",
+      "pygments_style": "xcode",
+      "description": "Xcode style highlighting"
+    }
+  ],
+  "default_theme": "default"
+}

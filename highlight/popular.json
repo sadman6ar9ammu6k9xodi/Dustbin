@@ -1,0 +1,60 @@
+{
+  "popular_languages": [
+    "text",
+    "python",
+    "javascript",
+    "html",
+    "css",
+    "json",
+    "java",
+    "cpp",
+    "c",
+    "csharp",
+    "go",
+    "rust",
+    "php",
+    "ruby",
+    "swift",
+    "kotlin",
+    "typescript",
+    "sql",
+    "bash",
+    "markdown",
+    "xml",
+    "yaml"
+  ],
+  "web_languages": [
+    "html",
+    "css",
+    "javascript",
+    "typescript",
+    "php"
+  ],
+  "systems_languages": [
+    "c",
+    "cpp",
+    "rust",
+    "go",
+    "zig"
+  ],
+  "mobile_languages": [
+    "swift",
+    "kotlin",
+    "java",
+    "dart"
+  ],
+  "data_languages": [
+    "python",
+    "r",
+    "sql",
+    "json",
+    "xml",
+    "yaml"
+  ],
+  "gamedev_languages": [
+    "gdscript",
+    "csharp",
+    "cpp",
+    "lua"
+  ]
+}

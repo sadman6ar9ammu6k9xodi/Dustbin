@@ -1,0 +1,288 @@
+{
+  "languages": [
+    {
+      "id": "text",
+      "name": "Plain Text",
+      "pygments_lexer": "text",
+      "extensions": [".txt"],
+      "category": "text"
+    },
+    {
+      "id": "html",
+      "name": "HTML",
+      "pygments_lexer": "html",
+      "extensions": [".html", ".htm"],
+      "category": "web"
+    },
+    {
+      "id": "css",
+      "name": "CSS",
+      "pygments_lexer": "css",
+      "extensions": [".css"],
+      "category": "web"
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "pygments_lexer": "javascript",
+      "extensions": [".js", ".mjs"],
+      "category": "web"
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "pygments_lexer": "typescript",
+      "extensions": [".ts"],
+      "category": "web"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "pygments_lexer": "python",
+      "extensions": [".py", ".pyw"],
+      "category": "programming"
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "pygments_lexer": "java",
+      "extensions": [".java"],
+      "category": "programming"
+    },
+    {
+      "id": "kotlin",
+      "name": "Kotlin",
+      "pygments_lexer": "kotlin",
+      "extensions": [".kt", ".kts"],
+      "category": "programming"
+    },
+    {
+      "id": "csharp",
+      "name": "C#",
+      "pygments_lexer": "csharp",
+      "extensions": [".cs"],
+      "category": "programming"
+    },
+    {
+      "id": "c",
+      "name": "C",
+      "pygments_lexer": "c",
+      "extensions": [".c", ".h"],
+      "category": "programming"
+    },
+    {
+      "id": "cpp",
+      "name": "C++",
+      "pygments_lexer": "cpp",
+      "extensions": [".cpp", ".cxx", ".cc", ".hpp"],
+      "category": "programming"
+    },
+    {
+      "id": "rust",
+      "name": "Rust",
+      "pygments_lexer": "rust",
+      "extensions": [".rs"],
+      "category": "programming"
+    },
+    {
+      "id": "go",
+      "name": "Go",
+      "pygments_lexer": "go",
+      "extensions": [".go"],
+      "category": "programming"
+    },
+    {
+      "id": "php",
+      "name": "PHP",
+      "pygments_lexer": "php",
+      "extensions": [".php"],
+      "category": "web"
+    },
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "pygments_lexer": "ruby",
+      "extensions": [".rb"],
+      "category": "programming"
+    },
+    {
+      "id": "swift",
+      "name": "Swift",
+      "pygments_lexer": "swift",
+      "extensions": [".swift"],
+      "category": "programming"
+    },
+    {
+      "id": "gdscript",
+      "name": "GDScript",
+      "pygments_lexer": "gdscript",
+      "extensions": [".gd"],
+      "category": "gamedev"
+    },
+    {
+      "id": "json",
+      "name": "JSON",
+      "pygments_lexer": "json",
+      "extensions": [".json"],
+      "category": "data"
+    },
+    {
+      "id": "xml",
+      "name": "XML",
+      "pygments_lexer": "xml",
+      "extensions": [".xml"],
+      "category": "data"
+    },
+    {
+      "id": "yaml",
+      "name": "YAML",
+      "pygments_lexer": "yaml",
+      "extensions": [".yml", ".yaml"],
+      "category": "data"
+    },
+    {
+      "id": "sql",
+      "name": "SQL",
+      "pygments_lexer": "sql",
+      "extensions": [".sql"],
+      "category": "database"
+    },
+    {
+      "id": "bash",
+      "name": "Bash",
+      "pygments_lexer": "bash",
+      "extensions": [".sh", ".bash"],
+      "category": "shell"
+    },
+    {
+      "id": "powershell",
+      "name": "PowerShell",
+      "pygments_lexer": "powershell",
+      "extensions": [".ps1"],
+      "category": "shell"
+    },
+    {
+      "id": "dockerfile",
+      "name": "Dockerfile",
+      "pygments_lexer": "docker",
+      "extensions": ["Dockerfile"],
+      "category": "devops"
+    },
+    {
+      "id": "markdown",
+      "name": "Markdown",
+      "pygments_lexer": "markdown",
+      "extensions": [".md", ".markdown"],
+      "category": "text"
+    },
+    {
+      "id": "lua",
+      "name": "Lua",
+      "pygments_lexer": "lua",
+      "extensions": [".lua"],
+      "category": "programming"
+    },
+    {
+      "id": "perl",
+      "name": "Perl",
+      "pygments_lexer": "perl",
+      "extensions": [".pl", ".pm"],
+      "category": "programming"
+    },
+    {
+      "id": "r",
+      "name": "R",
+      "pygments_lexer": "splus",
+      "extensions": [".r", ".R"],
+      "category": "data"
+    },
+    {
+      "id": "scala",
+      "name": "Scala",
+      "pygments_lexer": "scala",
+      "extensions": [".scala"],
+      "category": "programming"
+    },
+    {
+      "id": "haskell",
+      "name": "Haskell",
+      "pygments_lexer": "haskell",
+      "extensions": [".hs"],
+      "category": "programming"
+    },
+    {
+      "id": "clojure",
+      "name": "Clojure",
+      "pygments_lexer": "clojure",
+      "extensions": [".clj"],
+      "category": "programming"
+    },
+    {
+      "id": "elixir",
+      "name": "Elixir",
+      "pygments_lexer": "elixir",
+      "extensions": [".ex", ".exs"],
+      "category": "programming"
+    },
+    {
+      "id": "erlang",
+      "name": "Erlang",
+      "pygments_lexer": "erlang",
+      "extensions": [".erl"],
+      "category": "programming"
+    },
+    {
+      "id": "dart",
+      "name": "Dart",
+      "pygments_lexer": "dart",
+      "extensions": [".dart"],
+      "category": "programming"
+    },
+    {
+      "id": "vim",
+      "name": "Vim Script",
+      "pygments_lexer": "vim",
+      "extensions": [".vim"],
+      "category": "config"
+    },
+    {
+      "id": "ini",
+      "name": "INI/Config",
+      "pygments_lexer": "ini",
+      "extensions": [".ini", ".cfg", ".conf"],
+      "category": "config"
+    },
+    {
+      "id": "toml",
+      "name": "TOML",
+      "pygments_lexer": "toml",
+      "extensions": [".toml"],
+      "category": "config"
+    },
+    {
+      "id": "nginx",
+      "name": "Nginx Config",
+      "pygments_lexer": "nginx",
+      "extensions": [],
+      "category": "config"
+    },
+    {
+      "id": "apache",
+      "name": "Apache Config",
+      "pygments_lexer": "apacheconf",
+      "extensions": [],
+      "category": "config"
+    }
+  ],
+  "categories": {
+    "web": "Web Development",
+    "programming": "Programming Languages",
+    "data": "Data Formats",
+    "database": "Database",
+    "shell": "Shell Scripts",
+    "devops": "DevOps",
+    "gamedev": "Game Development",
+    "config": "Configuration",
+    "text": "Text/Markup"
+  }
+}
