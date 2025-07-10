@@ -17,6 +17,7 @@ import secrets
 import string
 import markdown
 import bleach
+from ai_helper import get_code_suggestions, ai_helper
 
 # Load environment variables
 load_dotenv()
@@ -527,6 +528,95 @@ def languages():
     """Show available languages and their categories"""
     config = load_language_config()
     return render_template('languages.html', config=config)
+
+@app.route('/api/ai/detect-language', methods=['POST'])
+def api_detect_language():
+    """API endpoint to detect programming language from code"""
+    try:
+        data = request.get_json()
+        if not data or 'code' not in data:
+            return jsonify({'error': 'Code content required'}), 400
+
+        code = data['code']
+        if len(code.strip()) < 10:
+            return jsonify({'language': 'text', 'confidence': 'low'})
+
+        detected_language = ai_helper.detect_programming_language(code)
+
+        return jsonify({
+            'language': detected_language,
+            'confidence': 'high' if detected_language != 'text' else 'low',
+            'suggestions': get_language_choices()[:10]  # Top 10 languages
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/explain-code', methods=['POST'])
+def api_explain_code():
+    """API endpoint to explain code snippet"""
+    try:
+        data = request.get_json()
+        if not data or 'code' not in data:
+            return jsonify({'error': 'Code content required'}), 400
+
+        code = data['code']
+        language = data.get('language', 'python')
+
+        explanation = ai_helper.explain_code(code, language)
+
+        return jsonify({
+            'explanation': explanation,
+            'language': language,
+            'ai_powered': bool(ai_helper.api_token)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/complete-code', methods=['POST'])
+def api_complete_code():
+    """API endpoint for code completion"""
+    try:
+        data = request.get_json()
+        if not data or 'code' not in data:
+            return jsonify({'error': 'Code content required'}), 400
+
+        code = data['code']
+        language = data.get('language', 'python')
+
+        completion = ai_helper.generate_code_completion(code, language)
+
+        return jsonify({
+            'completion': completion,
+            'language': language,
+            'ai_powered': bool(ai_helper.api_token),
+            'available': bool(completion)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ai/status')
+def api_ai_status():
+    """API endpoint to check AI service status"""
+    try:
+        available_models = ai_helper.get_available_models()
+
+        return jsonify({
+            'ai_enabled': bool(ai_helper.api_token),
+            'available_models': available_models,
+            'features': {
+                'language_detection': True,
+                'code_explanation': True,
+                'code_completion': bool(ai_helper.api_token),
+                'model_testing': True
+            },
+            'status': 'ready'
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'error'}), 500
 
 if __name__ == '__main__':
     with app.app_context():
