@@ -4,7 +4,7 @@ Database creation script for Dustbin
 Creates all tables with the correct schema including new columns
 """
 
-from app import app, db, User, Paste, IPRateLimit
+from app import app, db, User, Paste
 
 def create_database():
     """Create all database tables"""
@@ -29,9 +29,9 @@ def create_database():
             columns = [col['name'] for col in inspector.get_columns('paste')]
             print(f"Paste table columns: {columns}")
             
-            # Verify new columns exist
-            required_columns = ['id', 'title', 'content', 'language', 'created_at', 
-                              'expires_at', 'is_public', 'user_id', 'views', 'ip_address']
+            # Verify required columns exist
+            required_columns = ['id', 'title', 'content', 'language', 'created_at',
+                              'expires_at', 'is_public', 'user_id', 'views']
             missing_columns = [col for col in required_columns if col not in columns]
             
             if missing_columns:
@@ -40,10 +40,7 @@ def create_database():
             else:
                 print("✅ All required columns present")
         
-        # Check IPRateLimit table
-        if 'ip_rate_limit' in tables:
-            columns = [col['name'] for col in inspector.get_columns('ip_rate_limit')]
-            print(f"IPRateLimit table columns: {columns}")
+
         
         print("✅ Database created successfully!")
         return True

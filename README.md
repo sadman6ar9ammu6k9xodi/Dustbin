@@ -14,13 +14,15 @@ A modern, feature-rich pastebin service built with Python Flask. Share code snip
 - 📊 **Statistics** - View counts and user stats
 - 🔗 **API Access** - JSON API for paste data
 - 📥 **Download** - Save pastes as files
+- 🎨 **Live Preview** - Markdown, HTML, and SVG preview functionality
+- 🚀 **Unlimited Creation** - No rate limiting restrictions
 
 ## Quick Start
 
 1. **Clone and setup**:
    ```bash
-   git clone <repository>
-   cd dustbin
+   git clone https://github.com/gpbot-org/Dustbin.git
+   cd Dustbin
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt

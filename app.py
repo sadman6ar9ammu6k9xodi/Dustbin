@@ -47,11 +47,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-class IPRateLimit(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ip_address = db.Column(db.String(45), nullable=False)  # IPv6 can be up to 45 chars
-    last_post = db.Column(db.DateTime, default=datetime.utcnow)
-    post_count = db.Column(db.Integer, default=1)
+
 
 class Paste(db.Model):
     id = db.Column(db.String(8), primary_key=True)
@@ -63,7 +59,6 @@ class Paste(db.Model):
     is_public = db.Column(db.Boolean, default=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     views = db.Column(db.Integer, default=0)
-    ip_address = db.Column(db.String(45), nullable=True)  # Track IP for rate limiting
 
     def __init__(self, **kwargs):
         super(Paste, self).__init__(**kwargs)
@@ -231,27 +226,7 @@ def get_pygments_lexer_for_language(language_id):
             return lang['pygments_lexer']
     return 'text'  # fallback
 
-def check_rate_limit(ip_address):
-    """Check if IP address has exceeded rate limit (1 post per IP)"""
-    rate_limit = IPRateLimit.query.filter_by(ip_address=ip_address).first()
 
-    if rate_limit:
-        # Check if it's been more than 24 hours since last post
-        time_since_last = datetime.utcnow() - rate_limit.last_post
-        if time_since_last < timedelta(hours=24):
-            return False, f"Rate limit exceeded. You can post again in {24 - int(time_since_last.total_seconds() / 3600)} hours."
-        else:
-            # Reset the rate limit
-            rate_limit.last_post = datetime.utcnow()
-            rate_limit.post_count = 1
-            db.session.commit()
-            return True, None
-    else:
-        # First time posting from this IP
-        new_rate_limit = IPRateLimit(ip_address=ip_address)
-        db.session.add(new_rate_limit)
-        db.session.commit()
-        return True, None
 
 def calculate_expiry(expires_in):
     """Calculate expiry datetime based on selection"""
@@ -287,26 +262,13 @@ def new_paste():
     form.language.choices = get_language_choices()
 
     if form.validate_on_submit():
-        # Get client IP address
-        client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR', '127.0.0.1'))
-        if ',' in client_ip:
-            client_ip = client_ip.split(',')[0].strip()
-
-        # Check rate limit for anonymous users
-        if not current_user.is_authenticated:
-            can_post, error_message = check_rate_limit(client_ip)
-            if not can_post:
-                flash(error_message, 'error')
-                return render_template('new_paste.html', form=form)
-
         paste = Paste(
             title=form.title.data or None,
             content=form.content.data,
             language=form.language.data,
             expires_at=calculate_expiry(form.expires_in.data),
             is_public=form.is_public.data,
-            user_id=current_user.id if current_user.is_authenticated else None,
-            ip_address=client_ip
+            user_id=current_user.id if current_user.is_authenticated else None
         )
         db.session.add(paste)
         db.session.commit()
@@ -558,41 +520,7 @@ def search():
 
     return render_template('search.html', pastes=pastes, query=query)
 
-@app.route('/api/rate-limit')
-def api_rate_limit():
-    """API endpoint to check rate limit status"""
-    client_ip = request.environ.get('HTTP_X_FORWARDED_FOR', request.environ.get('REMOTE_ADDR', '127.0.0.1'))
-    if ',' in client_ip:
-        client_ip = client_ip.split(',')[0].strip()
 
-    if current_user.is_authenticated:
-        return jsonify({
-            'can_post': True,
-            'message': 'Authenticated users have no rate limit',
-            'user': current_user.username
-        })
-
-    rate_limit = IPRateLimit.query.filter_by(ip_address=client_ip).first()
-
-    if rate_limit:
-        time_since_last = datetime.utcnow() - rate_limit.last_post
-        if time_since_last < timedelta(hours=24):
-            hours_remaining = 24 - int(time_since_last.total_seconds() / 3600)
-            return jsonify({
-                'can_post': False,
-                'message': f'Rate limit active. Can post again in {hours_remaining} hours.',
-                'hours_remaining': hours_remaining
-            })
-        else:
-            return jsonify({
-                'can_post': True,
-                'message': 'Rate limit expired, you can post now'
-            })
-    else:
-        return jsonify({
-            'can_post': True,
-            'message': 'No previous posts from this IP'
-        })
 
 @app.route('/languages')
 def languages():

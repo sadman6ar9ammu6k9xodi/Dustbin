@@ -76,21 +76,7 @@
             </div>
         </div>
 
-        {% if not current_user.is_authenticated %}
-        <div class="card mt-3" id="rate-limit-card">
-            <div class="card-header">
-                <h5>Rate Limit</h5>
-            </div>
-            <div class="card-body">
-                <div id="rate-limit-status">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    Checking rate limit...
-                </div>
-            </div>
-        </div>
-        {% endif %}
+
 
         <div class="card mt-3">
             <div class="card-header">
@@ -174,37 +160,6 @@ if (textarea) {
     });
 }
 
-// Check rate limit status for anonymous users
-{% if not current_user.is_authenticated %}
-fetch('/api/rate-limit')
-    .then(response => response.json())
-    .then(data => {
-        const statusDiv = document.getElementById('rate-limit-status');
-        if (data.can_post) {
-            statusDiv.innerHTML = `
-                <div class="text-success">
-                    <i class="fas fa-check-circle"></i> ${data.message}
-                </div>
-            `;
-        } else {
-            statusDiv.innerHTML = `
-                <div class="text-danger">
-                    <i class="fas fa-exclamation-triangle"></i> ${data.message}
-                </div>
-            `;
-            // Disable the submit button
-            const submitBtn = document.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Rate Limited';
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error checking rate limit:', error);
-        document.getElementById('rate-limit-status').innerHTML =
-            '<div class="text-muted">Unable to check rate limit</div>';
-    });
-{% endif %}
+
 </script>
 {% endblock %}

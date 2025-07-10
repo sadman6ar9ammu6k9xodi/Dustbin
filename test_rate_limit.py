@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test rate limiting functionality
+Test basic paste creation functionality (rate limiting removed)
 """
 
 import requests
@@ -46,64 +46,53 @@ def create_paste_with_csrf(title, content, language='python'):
     response = session.post(f"{BASE_URL}/new", data=paste_data, allow_redirects=False)
     return response
 
-def test_rate_limiting():
-    """Test the rate limiting functionality"""
-    print("🔍 Testing Rate Limiting with CSRF...")
-    
-    # Check initial status
-    response = requests.get(f"{BASE_URL}/api/rate-limit")
-    print(f"Initial status: {response.json()}")
-    
+def test_paste_creation():
+    """Test basic paste creation functionality"""
+    print("🔍 Testing Paste Creation (No Rate Limiting)...")
+
     # Create first paste
     print("\n📝 Creating first paste...")
     response1 = create_paste_with_csrf("First Paste", "print('First paste')")
-    
+
     if response1:
         print(f"First paste response: {response1.status_code}")
         if response1.status_code == 302:
             print("✅ First paste created successfully (redirected)")
         else:
             print(f"❌ Unexpected status code: {response1.status_code}")
-    
-    # Check status after first paste
-    response = requests.get(f"{BASE_URL}/api/rate-limit")
-    status_after_first = response.json()
-    print(f"Status after first paste: {status_after_first}")
-    
-    # Try to create second paste
-    print("\n📝 Attempting second paste...")
-    response2 = create_paste_with_csrf("Second Paste", "print('Second paste - should be blocked')")
-    
+
+    # Create second paste immediately
+    print("\n📝 Creating second paste...")
+    response2 = create_paste_with_csrf("Second Paste", "print('Second paste - should work')")
+
     if response2:
         print(f"Second paste response: {response2.status_code}")
-        if response2.status_code == 200:
-            # Check if the response contains an error message
-            if "Rate limit exceeded" in response2.text:
-                print("✅ Second paste correctly blocked by rate limit")
-            else:
-                print("❌ Second paste was not blocked (rate limiting not working)")
-        elif response2.status_code == 302:
-            print("❌ Second paste was created (rate limiting not working)")
-    
-    # Final status check
-    response = requests.get(f"{BASE_URL}/api/rate-limit")
-    final_status = response.json()
-    print(f"Final status: {final_status}")
-    
+        if response2.status_code == 302:
+            print("✅ Second paste created successfully (no rate limiting)")
+        else:
+            print(f"❌ Unexpected status code: {response2.status_code}")
+
     # Summary
     print("\n" + "="*50)
-    if not status_after_first['can_post']:
-        print("✅ Rate limiting is working correctly!")
+    if response1 and response2 and response1.status_code == 302 and response2.status_code == 302:
+        print("✅ Paste creation is working correctly (no rate limiting)!")
     else:
-        print("❌ Rate limiting may not be working as expected")
+        print("❌ Paste creation may have issues")
 
 if __name__ == "__main__":
+    print("🧪 Testing Dustbin Paste Creation (No Rate Limiting)\n")
+    print("=" * 50)
+
     try:
-        test_rate_limiting()
+        test_paste_creation()
+
+        print("\n" + "=" * 50)
+        print("✅ All tests completed!")
+
     except requests.exceptions.ConnectionError:
-        print("❌ Could not connect to Dustbin server")
-        print("Make sure the Flask app is running at http://127.0.0.1:5000")
+        print("❌ Could not connect to Dustbin server at http://127.0.0.1:5000")
+        print("Make sure the Flask app is running!")
     except Exception as e:
-        print(f"❌ Test failed: {e}")
+        print(f"❌ Test failed with error: {e}")
         import traceback
         traceback.print_exc()
