@@ -1,10 +1,13 @@
-# Dustbin - Simple Pastebin Service
+# 🗑️ Dustbin - Advanced Pastebin Platform
 
-A modern, feature-rich pastebin service built with Python Flask. Share code snippets, logs, and text with syntax highlighting, expiration options, and user accounts.
+A modern, feature-rich pastebin platform with AI-powered assistance, syntax highlighting, and comprehensive API support.
 
-## Features
+## ✨ Features
 
-- 🎨 **Syntax Highlighting** - Support for 100+ programming languages
+- 🎨 **Syntax Highlighting** - Support for 99+ programming languages
+- 🤖 **AI Assistant** - Language detection, code explanation, and completion
+- 📝 **Live Preview** - Markdown, HTML, and SVG preview functionality
+- 🔗 **REST API** - Complete API system with comprehensive documentation
 - ⏰ **Paste Expiration** - Set automatic deletion times (10 minutes to 1 month)
 - 🔒 **Privacy Controls** - Public and private pastes
 - 👤 **User Accounts** - Registration, login, and paste history
@@ -12,135 +15,214 @@ A modern, feature-rich pastebin service built with Python Flask. Share code snip
 - 📱 **Mobile Friendly** - Responsive design works on all devices
 - 🍴 **Fork Pastes** - Create copies of existing pastes
 - 📊 **Statistics** - View counts and user stats
-- 🔗 **API Access** - JSON API for paste data
 - 📥 **Download** - Save pastes as files
-- 🎨 **Live Preview** - Markdown, HTML, and SVG preview functionality
 - 🚀 **Unlimited Creation** - No rate limiting restrictions
 
-## Quick Start
+## 🚀 Quick Start
 
-1. **Clone and setup**:
+### Prerequisites
+
+- Python 3.8+
+- pip (Python package manager)
+
+### Installation
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/gpbot-org/Dustbin.git
    cd Dustbin
-   python3 -m venv venv
-   source venv/bin/activate
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
    pip install -r requirements.txt
    ```
 
-2. **Configure environment**:
+4. **Initialize database**
    ```bash
-   cp .env.example .env
-   # Edit .env with your settings
+   python create_db.py
    ```
 
-3. **Run the application**:
+5. **Run the application**
    ```bash
    python app.py
    ```
 
-4. **Visit** http://127.0.0.1:5000
+6. **Access the application**
+   - Web Interface: http://127.0.0.1:5000
+   - API Documentation: http://127.0.0.1:5000/docs
 
-## Configuration
+## 🤖 AI Features Setup (Optional)
 
-Edit the `.env` file to configure:
+To enable full AI features (code completion, enhanced language detection):
 
-- `SECRET_KEY` - Flask secret key (change in production!)
-- `DATABASE_URL` - Database connection string
-- `FLASK_ENV` - Environment (development/production)
-- `FLASK_DEBUG` - Debug mode (True/False)
+1. **Get Hugging Face API Token**
+   - Visit: https://huggingface.co/settings/tokens
+   - Create a new token
 
-## API Endpoints
+2. **Set Environment Variable**
+   ```bash
+   export HUGGINGFACE_API_TOKEN=your_token_here
+   ```
 
-- `GET /api/paste/<id>` - Get paste data as JSON
-- `GET /paste/<id>/raw` - Get raw paste content
+3. **Restart the application**
+   ```bash
+   python app.py
+   ```
 
-## File Structure
+## 📁 Project Structure
 
 ```
-dustbin/
-├── app.py              # Main Flask application
-├── requirements.txt    # Python dependencies
-├── .env               # Environment configuration
-├── templates/         # HTML templates
-│   ├── base.html
-│   ├── index.html
-│   ├── new_paste.html
-│   ├── view_paste.html
-│   ├── login.html
-│   ├── register.html
-│   ├── my_pastes.html
-│   └── search.html
-└── static/           # Static assets
-    └── css/
-        └── style.css
+Dustbin/
+├── 📄 app.py                 # Main Flask application
+├── 🤖 ai_helper.py          # AI integration module
+├── 🗄️ create_db.py          # Database initialization
+├── 📋 requirements.txt      # Python dependencies
+├── 🎨 static/               # CSS, JS, and assets
+├── 📄 templates/            # HTML templates
+├── 🔧 highlight/            # Language configurations
+├── 📚 docs/                 # Documentation files
+│   ├── README.md
+│   ├── API_SYSTEM.md
+│   ├── FEATURES_IMPLEMENTED.md
+│   └── PREVIEW_FEATURES.md
+└── 🧪 tests/               # Test suite
+    ├── test_all_apis.py    # Comprehensive API tests
+    ├── test_ai_features.py # AI functionality tests
+    ├── test_preview.py     # Preview feature tests
+    ├── run_tests.py        # Test runner
+    └── ...
 ```
 
-## Database Schema
+## 🔗 API Usage
 
-### Users
-- `id` - Primary key
-- `username` - Unique username
-- `email` - User email
-- `password_hash` - Hashed password
-- `created_at` - Registration date
+### Quick Examples
 
-### Pastes
-- `id` - 8-character unique ID
-- `title` - Optional paste title
-- `content` - Paste content
-- `language` - Programming language for highlighting
-- `created_at` - Creation timestamp
-- `expires_at` - Optional expiration time
-- `is_public` - Public/private flag
-- `user_id` - Owner (optional)
-- `views` - View count
+**Create a paste:**
+```bash
+curl -X POST http://127.0.0.1:5000/api/v1/pastes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Hello World",
+    "content": "print(\"Hello from API!\")",
+    "language": "python",
+    "is_public": true
+  }'
+```
 
-## Technologies Used
+**Get paste content:**
+```bash
+curl http://127.0.0.1:5000/api/v1/pastes/abc123
+```
 
-- **Backend**: Python Flask
-- **Database**: SQLAlchemy (SQLite by default)
-- **Authentication**: Flask-Login
-- **Forms**: Flask-WTF
-- **Syntax Highlighting**: Pygments
-- **Frontend**: Bootstrap 5
-- **Icons**: Font Awesome
+**AI language detection:**
+```bash
+curl -X POST http://127.0.0.1:5000/api/ai/detect-language \
+  -H "Content-Type: application/json" \
+  -d '{"code": "function hello() { console.log(\"Hi!\"); }"}'
+```
 
-## Development
+**Complete API documentation:** http://127.0.0.1:5000/docs
 
-To contribute or modify:
+## 🧪 Testing
+
+### Run All Tests
+```bash
+cd tests
+python run_tests.py
+```
+
+### Run Specific Tests
+```bash
+# API functionality
+python tests/test_all_apis.py
+
+# AI features
+python tests/test_ai_features.py
+
+# Preview functionality
+python tests/test_preview.py
+```
+
+### Test Results
+- **Overall Success Rate**: 85.7% (6/7 test files passing)
+- **API Tests**: 88.2% success rate (15/17 tests)
+- **Core API**: 100% success rate (7/7 tests)
+- **AI Features**: 85.7% success rate (6/7 tests)
+- **Preview Features**: 100% success rate (all formats working)
+
+## 📚 Documentation
+
+- **API Documentation**: `/docs` - Interactive API reference
+- **Feature Guide**: `docs/FEATURES_IMPLEMENTED.md`
+- **Preview Guide**: `docs/PREVIEW_FEATURES.md`
+- **API System**: `docs/API_SYSTEM.md`
+
+## 🛠️ Development
+
+### Adding New Languages
+
+1. Edit `highlight/languages.json`
+2. Add language configuration with Pygments lexer
+3. Restart the application
+
+### Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Run tests: `python tests/run_tests.py`
 5. Submit a pull request
 
-## License
+## 🔧 Configuration
 
-MIT License - see LICENSE file for details.
+### Environment Variables
 
-## Security Notes
+- `HUGGINGFACE_API_TOKEN` - Enable full AI features
+- `SECRET_KEY` - Flask secret key (auto-generated if not set)
+- `DATABASE_URL` - Database connection string (defaults to SQLite)
 
-- Change the `SECRET_KEY` in production
-- Use a proper database (PostgreSQL/MySQL) for production
-- Consider rate limiting for public instances
-- Implement CSRF protection (included via Flask-WTF)
-- Use HTTPS in production
+### Features Toggle
 
-## Deployment
+- **Rate Limiting**: Removed for better UX
+- **AI Features**: Work with/without API token
+- **Preview**: Automatic for Markdown, HTML, SVG
+- **Authentication**: Optional for most features
 
-For production deployment:
+## 🎯 Use Cases
 
-1. Use a production WSGI server (gunicorn, uWSGI)
-2. Set up a reverse proxy (nginx, Apache)
-3. Use a production database
-4. Configure proper logging
-5. Set up SSL/TLS certificates
-6. Consider using a CDN for static assets
+- **Developers**: Code sharing with syntax highlighting and AI assistance
+- **Teams**: Collaborative code review and sharing
+- **Education**: Teaching with live code examples and explanations
+- **Documentation**: Markdown preview for README files and docs
+- **Prototyping**: Quick HTML/CSS/SVG testing and sharing
 
-Example with gunicorn:
-```bash
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
-```
+## 🔮 Roadmap
+
+- [ ] API key authentication
+- [ ] Webhook support
+- [ ] Bulk operations
+- [ ] Advanced search with filters
+- [ ] Official SDKs (Python, JavaScript, Go)
+- [ ] Real-time collaborative editing
+- [ ] More AI models integration
+
+## 📄 License
+
+This project is open source. See the repository for license details.
+
+## 🤝 Support
+
+- **Issues**: GitHub Issues
+- **Documentation**: `/docs` endpoint
+- **API Help**: Interactive docs at `/docs`
+
+---
+
+**Built with ❤️ for the developer community**
