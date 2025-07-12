@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation - Dustbin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3 col-md-4">
+            <div class="sticky-top" style="top: 20px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-book"></i> API Documentation</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="#overview">Overview</a>
+                            <a class="nav-link" href="#authentication">Authentication</a>
+                            <a class="nav-link" href="#rate-limits">Rate Limits</a>
+                            <a class="nav-link" href="#endpoints">Endpoints</a>
+                            <a class="nav-link ps-4" href="#pastes-list">List Pastes</a>
+                            <a class="nav-link ps-4" href="#pastes-create">Create Paste</a>
+                            <a class="nav-link ps-4" href="#pastes-get">Get Paste</a>
+                            <a class="nav-link ps-4" href="#pastes-update">Update Paste</a>
+                            <a class="nav-link ps-4" href="#pastes-delete">Delete Paste</a>
+                            <a class="nav-link ps-4" href="#languages">Languages</a>
+                            <a class="nav-link ps-4" href="#stats">Statistics</a>
+                            <a class="nav-link" href="#ai-endpoints">AI Endpoints</a>
+                            <a class="nav-link ps-4" href="#ai-detect">Language Detection</a>
+                            <a class="nav-link ps-4" href="#ai-explain">Code Explanation</a>
+                            <a class="nav-link ps-4" href="#ai-complete">Code Completion</a>
+                            <a class="nav-link ps-4" href="#ai-status">AI Status</a>
+                            <a class="nav-link" href="#examples">Examples</a>
+                            <a class="nav-link" href="#sdks">SDKs & Libraries</a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <div class="docs-content">
+                <!-- Overview -->
+                <section id="overview" class="mb-5">
+                    <h1 class="display-4 mb-4">🚀 Dustbin API Documentation</h1>
+                    <p class="lead">
+                        Welcome to the Dustbin API! Our RESTful API allows you to integrate paste functionality, 
+                        AI-powered code assistance, and syntax highlighting into your applications.
+                    </p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-rocket"></i> Base URL</h5>
+                                    <code class="d-block p-2 bg-light rounded">{{ request.url_root }}api/v1/</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-check-circle"></i> Response Format</h5>
+                                    <code class="d-block p-2 bg-light rounded">application/json</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="fas fa-info-circle"></i> Features</h6>
+                        <ul class="mb-0">
+                            <li><strong>RESTful Design</strong> - Standard HTTP methods and status codes</li>
+                            <li><strong>JSON Responses</strong> - All responses in JSON format</li>
+                            <li><strong>Pagination</strong> - Efficient handling of large datasets</li>
+                            <li><strong>AI Integration</strong> - Language detection, code explanation, and completion</li>
+                            <li><strong>Syntax Highlighting</strong> - 99+ programming languages supported</li>
+                            <li><strong>Preview Support</strong> - Markdown, HTML, and SVG preview capabilities</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Authentication -->
+                <section id="authentication" class="mb-5">
+                    <h2><i class="fas fa-key"></i> Authentication</h2>
+                    <p>
+                        Dustbin API supports both authenticated and anonymous access. Some endpoints require authentication 
+                        for full functionality.
+                    </p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Anonymous Access</h5>
+                            <ul>
+                                <li>Create public pastes</li>
+                                <li>View public pastes</li>
+                                <li>Use AI features</li>
+                                <li>Get statistics</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Authenticated Access</h5>
+                            <ul>
+                                <li>Create private pastes</li>
+                                <li>Update/delete your pastes</li>
+                                <li>Access paste history</li>
+                                <li>Enhanced AI features</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>Note:</strong> Authentication is currently session-based. API key authentication 
+                        will be added in future versions.
+                    </div>
+                </section>
+
+                <!-- Rate Limits -->
+                <section id="rate-limits" class="mb-5">
+                    <h2><i class="fas fa-tachometer-alt"></i> Rate Limits</h2>
+                    <p>
+                        Dustbin has removed traditional rate limiting to provide the best user experience. 
+                        However, we implement fair usage policies:
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint Type</th>
+                                    <th>Limit</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Paste Creation</td>
+                                    <td>Unlimited</td>
+                                    <td>Content size limited to 1MB</td>
+                                </tr>
+                                <tr>
+                                    <td>Paste Retrieval</td>
+                                    <td>Unlimited</td>
+                                    <td>Cached for performance</td>
+                                </tr>
+                                <tr>
+                                    <td>AI Features</td>
+                                    <td>Fair Usage</td>
+                                    <td>Depends on Hugging Face API limits</td>
+                                </tr>
+                                <tr>
+                                    <td>Statistics</td>
+                                    <td>Unlimited</td>
+                                    <td>Cached every 5 minutes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Endpoints -->
+                <section id="endpoints" class="mb-5">
+                    <h2><i class="fas fa-plug"></i> API Endpoints</h2>
+                    
+                    <!-- List Pastes -->
+                    <div id="pastes-list" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-success">GET</span> /pastes</h3>
+                        <p>Retrieve a list of public pastes with pagination and filtering options.</p>
+                        
+                        <h5>Query Parameters</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>Type</th>
+                                        <th>Default</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>page</code></td>
+                                        <td>integer</td>
+                                        <td>1</td>
+                                        <td>Page number for pagination</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>per_page</code></td>
+                                        <td>integer</td>
+                                        <td>20</td>
+                                        <td>Items per page (max 100)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>language</code></td>
+                                        <td>string</td>
+                                        <td>-</td>
+                                        <td>Filter by programming language</td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>search</code></td>
+                                        <td>string</td>
+                                        <td>-</td>
+                                        <td>Search in title and content</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h5>Example Request</h5>
+                        <pre><code class="language-bash">curl -X GET "{{ request.url_root }}api/v1/pastes?page=1&per_page=10&language=python"</code></pre>
+
+                        <h5>Example Response</h5>
+                        <pre><code class="language-json">{
+  "pastes": [
+    {
+      "id": "abc123",
+      "title": "Python Example",
+      "language": "python",
+      "created_at": "2024-01-15T10:30:00Z",
+      "expires_at": null,
+      "views": 42,
+      "author": "developer",
+      "preview_available": false,
+      "content_length": 256,
+      "url": "{{ request.url_root }}paste/abc123"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 10,
+    "total": 150,
+    "pages": 15,
+    "has_next": true,
+    "has_prev": false
+  }
+}</code></pre>
+                    </div>
+
+                    <!-- Create Paste -->
+                    <div id="pastes-create" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-primary">POST</span> /pastes</h3>
+                        <p>Create a new paste with content and metadata.</p>
+                        
+                        <h5>Request Body</h5>
+                        <pre><code class="language-json">{
+  "title": "My Code Snippet",
+  "content": "def hello():\n    print('Hello World!')",
+  "language": "python",
+  "expires_in": "1week",
+  "is_public": true
+}</code></pre>
+
+                        <h5>Response (201 Created)</h5>
+                        <pre><code class="language-json">{
+  "id": "xyz789",
+  "title": "My Code Snippet",
+  "language": "python",
+  "created_at": "2024-01-15T10:30:00Z",
+  "expires_at": "2024-01-22T10:30:00Z",
+  "is_public": true,
+  "preview_available": false,
+  "url": "{{ request.url_root }}paste/xyz789",
+  "raw_url": "{{ request.url_root }}paste/xyz789/raw",
+  "api_url": "{{ request.url_root }}api/v1/pastes/xyz789"
+}</code></pre>
+                    </div>
+
+                    <!-- Get Paste -->
+                    <div id="pastes-get" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-info">GET</span> /pastes/{id}</h3>
+                        <p>Retrieve a specific paste by ID, including full content.</p>
+                        
+                        <h5>Example Request</h5>
+                        <pre><code class="language-bash">curl -X GET "{{ request.url_root }}api/v1/pastes/abc123"</code></pre>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "id": "abc123",
+  "title": "Python Example",
+  "content": "def hello():\n    print('Hello World!')",
+  "language": "python",
+  "created_at": "2024-01-15T10:30:00Z",
+  "expires_at": null,
+  "is_public": true,
+  "views": 43,
+  "author": "developer",
+  "preview_available": false,
+  "preview_type": null,
+  "content_length": 35,
+  "urls": {
+    "view": "{{ request.url_root }}paste/abc123",
+    "raw": "{{ request.url_root }}paste/abc123/raw",
+    "preview": null
+  }
+}</code></pre>
+                    </div>
+
+                    <!-- Update Paste -->
+                    <div id="pastes-update" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-warning">PUT</span> /pastes/{id}</h3>
+                        <p>Update an existing paste (requires authentication and ownership).</p>
+
+                        <h5>Request Body</h5>
+                        <pre><code class="language-json">{
+  "title": "Updated Title",
+  "content": "def updated_hello():\n    print('Updated Hello World!')",
+  "language": "python",
+  "is_public": false
+}</code></pre>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "id": "abc123",
+  "title": "Updated Title",
+  "language": "python",
+  "updated_at": "2024-01-15T11:00:00Z",
+  "is_public": false,
+  "preview_available": false
+}</code></pre>
+                    </div>
+
+                    <!-- Delete Paste -->
+                    <div id="pastes-delete" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-danger">DELETE</span> /pastes/{id}</h3>
+                        <p>Delete a paste (requires authentication and ownership).</p>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "message": "Paste deleted successfully"
+}</code></pre>
+                    </div>
+
+                    <!-- Languages -->
+                    <div id="languages" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-success">GET</span> /languages</h3>
+                        <p>Get all supported programming languages and their metadata.</p>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "languages": [
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "programming",
+      "extensions": [".py"],
+      "preview_supported": false
+    },
+    {
+      "id": "markdown",
+      "name": "Markdown",
+      "category": "text",
+      "extensions": [".md", ".markdown"],
+      "preview_supported": true
+    }
+  ],
+  "categories": ["programming", "web", "data", "text", "config"],
+  "total_count": 99
+}</code></pre>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div id="stats" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-info">GET</span> /stats</h3>
+                        <p>Get platform statistics and usage information.</p>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "total_pastes": 15420,
+  "public_pastes": 12350,
+  "total_users": 1250,
+  "recent_pastes_24h": 89,
+  "top_languages": [
+    {"language": "python", "count": 2340},
+    {"language": "javascript", "count": 1890},
+    {"language": "html", "count": 1456}
+  ],
+  "features": {
+    "syntax_highlighting": true,
+    "preview_support": true,
+    "ai_assistance": true,
+    "user_accounts": true,
+    "paste_expiration": true
+  }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- AI Endpoints -->
+                <section id="ai-endpoints" class="mb-5">
+                    <h2><i class="fas fa-robot"></i> AI-Powered Endpoints</h2>
+                    <p>
+                        Dustbin provides AI-powered features for code analysis, language detection, and completion.
+                        These endpoints work with or without a Hugging Face API token.
+                    </p>
+
+                    <!-- Language Detection -->
+                    <div id="ai-detect" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-primary">POST</span> /ai/detect-language</h3>
+                        <p>Automatically detect the programming language of code snippets.</p>
+
+                        <h5>Request Body</h5>
+                        <pre><code class="language-json">{
+  "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"
+}</code></pre>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "language": "python",
+  "confidence": "high",
+  "suggestions": [
+    ["python", "Python"],
+    ["text", "Plain Text"],
+    ["markdown", "Markdown"]
+  ]
+}</code></pre>
+                    </div>
+
+                    <!-- Code Explanation -->
+                    <div id="ai-explain" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-info">POST</span> /ai/explain-code</h3>
+                        <p>Get AI-powered explanations of code functionality.</p>
+
+                        <h5>Request Body</h5>
+                        <pre><code class="language-json">{
+  "code": "def quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)",
+  "language": "python"
+}</code></pre>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "explanation": "This Python code implements the quicksort algorithm. It defines functions, contains conditional logic, and includes list comprehensions for efficient sorting.",
+  "language": "python",
+  "ai_powered": false
+}</code></pre>
+                    </div>
+
+                    <!-- Code Completion -->
+                    <div id="ai-complete" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-success">POST</span> /ai/complete-code</h3>
+                        <p>Get AI-powered code completion suggestions (requires Hugging Face API token).</p>
+
+                        <h5>Request Body</h5>
+                        <pre><code class="language-json">{
+  "code": "def calculate_fibonacci(n):\n    # This function calculates fibonacci numbers\n    if n <= 1:\n        return n\n    # Add recursive case here",
+  "language": "python"
+}</code></pre>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "completion": "return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)",
+  "language": "python",
+  "ai_powered": true,
+  "available": true
+}</code></pre>
+                    </div>
+
+                    <!-- AI Status -->
+                    <div id="ai-status" class="endpoint-section mb-4">
+                        <h3><span class="badge bg-info">GET</span> /ai/status</h3>
+                        <p>Check the status and availability of AI features.</p>
+
+                        <h5>Response (200 OK)</h5>
+                        <pre><code class="language-json">{
+  "ai_enabled": true,
+  "available_models": {
+    "code_completion": "Salesforce/codegen-350M-mono",
+    "language_detection": "microsoft/codebert-base-mlm"
+  },
+  "features": {
+    "language_detection": true,
+    "code_explanation": true,
+    "code_completion": true,
+    "model_testing": true
+  },
+  "status": "ready"
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="mb-5">
+                    <h2><i class="fas fa-code"></i> Code Examples</h2>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Python Example</h4>
+                            <pre><code class="language-python">import requests
+
+# Create a new paste
+response = requests.post('{{ request.url_root }}api/v1/pastes', json={
+    'title': 'Hello World',
+    'content': 'print("Hello from API!")',
+    'language': 'python',
+    'is_public': True
+})
+
+paste = response.json()
+print(f"Created paste: {paste['url']}")
+
+# Get the paste
+response = requests.get(f"{{ request.url_root }}api/v1/pastes/{paste['id']}")
+paste_data = response.json()
+print(f"Content: {paste_data['content']}")
+</code></pre>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h4>JavaScript Example</h4>
+                            <pre><code class="language-javascript">// Create a new paste
+const response = await fetch('{{ request.url_root }}api/v1/pastes', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        title: 'JavaScript Example',
+        content: 'console.log("Hello from API!");',
+        language: 'javascript',
+        is_public: true
+    })
+});
+
+const paste = await response.json();
+console.log(`Created paste: ${paste.url}`);
+
+// Use AI to detect language
+const aiResponse = await fetch('{{ request.url_root }}api/ai/detect-language', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        code: 'function hello() { console.log("Hello!"); }'
+    })
+});
+
+const detection = await aiResponse.json();
+console.log(`Detected language: ${detection.language}`);
+</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SDKs -->
+                <section id="sdks" class="mb-5">
+                    <h2><i class="fas fa-puzzle-piece"></i> SDKs & Libraries</h2>
+                    <p>
+                        While we don't have official SDKs yet, the API is designed to be simple and RESTful.
+                        Here are some community-contributed libraries and examples:
+                    </p>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fab fa-python"></i> Python</h5>
+                                    <p class="card-text">Use the <code>requests</code> library for easy API integration.</p>
+                                    <code>pip install requests</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fab fa-js"></i> JavaScript</h5>
+                                    <p class="card-text">Use <code>fetch</code> API or <code>axios</code> for HTTP requests.</p>
+                                    <code>npm install axios</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-terminal"></i> cURL</h5>
+                                    <p class="card-text">Perfect for testing and shell scripting.</p>
+                                    <code>curl -X POST ...</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="fas fa-lightbulb"></i> Contributing</h6>
+                        <p class="mb-0">
+                            Want to create an SDK for your favorite language? We'd love to feature it here!
+                            Check out our <a href="https://github.com/gpbot-org/Dustbin" target="_blank">GitHub repository</a>
+                            for contribution guidelines.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Error Codes -->
+                <section id="errors" class="mb-5">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Error Handling</h2>
+                    <p>The API uses standard HTTP status codes and returns error details in JSON format.</p>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Status Code</th>
+                                    <th>Meaning</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>200</code></td>
+                                    <td>OK</td>
+                                    <td>Request successful</td>
+                                </tr>
+                                <tr>
+                                    <td><code>201</code></td>
+                                    <td>Created</td>
+                                    <td>Resource created successfully</td>
+                                </tr>
+                                <tr>
+                                    <td><code>400</code></td>
+                                    <td>Bad Request</td>
+                                    <td>Invalid request data</td>
+                                </tr>
+                                <tr>
+                                    <td><code>401</code></td>
+                                    <td>Unauthorized</td>
+                                    <td>Authentication required</td>
+                                </tr>
+                                <tr>
+                                    <td><code>403</code></td>
+                                    <td>Forbidden</td>
+                                    <td>Access denied</td>
+                                </tr>
+                                <tr>
+                                    <td><code>404</code></td>
+                                    <td>Not Found</td>
+                                    <td>Resource not found or expired</td>
+                                </tr>
+                                <tr>
+                                    <td><code>500</code></td>
+                                    <td>Internal Server Error</td>
+                                    <td>Server error occurred</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h5>Error Response Format</h5>
+                    <pre><code class="language-json">{
+  "error": "Content is required",
+  "status": 400,
+  "timestamp": "2024-01-15T10:30:00Z"
+}</code></pre>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.docs-content {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.docs-content h1, .docs-content h2, .docs-content h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.docs-content h1 {
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.5rem;
+}
+
+.docs-content h2 {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.3rem;
+}
+
+.endpoint-section {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+}
+
+.endpoint-section h3 {
+    margin-top: 0;
+}
+
+.nav-link {
+    color: #495057;
+    padding: 0.5rem 1rem;
+}
+
+.nav-link:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+pre {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+code {
+    background: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+}
+</style>
+{% endblock %}
