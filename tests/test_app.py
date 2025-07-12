@@ -1,6 +1,11 @@
 import unittest
 import tempfile
 import os
+import sys
+
+# Add parent directory to path to import app
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import app, db, User, Paste
 
 class DustbinTestCase(unittest.TestCase):
